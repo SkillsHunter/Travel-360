@@ -1,0 +1,36 @@
+--  1: possible pair of people at the same airport.
+-- We pretend the table exists twice: once as 'Person_A' and once as 'Person_B'.
+WITH AirportPairs AS (
+    SELECT 
+        Person_A.request_id AS ID_A,
+        Person_A.company_id AS Company_A,
+        Person_A.request_time AS Time_A,
+        Person_B.request_id AS ID_B,
+        Person_B.company_id AS Company_B,
+        Person_B.request_time AS Time_B,
+        Person_A.airport_code
+    FROM 
+        travel_requests AS Person_A
+    JOIN 
+        travel_requests AS Person_B 
+        ON Person_A.airport_code = Person_B.airport_code
+),
+
+-- 2: Throw away coworkers and prevent "Double Counting".
+-- Using '<' instead of '!=' is a neat trick. 
+-- It stops the system from matching Company 1 with Company 2, 
+-- and then doing it again backwards (Company 2 with Company 1).
+ValidPartners AS (
+    SELECT *
+    FROM AirportPairs
+    WHERE Company_A < Company_B 
+)
+
+-- STEP 3: Doing the math on the time window.
+-- We only keep the pairs if the difference between their flight times is less than 3000.
+SELECT *
+FROM ValidPartners
+WHERE 
+    -- We use ABS (Absolute Value) because we don't care who flies first, 
+    -- we just care about the gap between them.
+    ABS( EXTRACT(EPOCH FROM (Time_A - Time_B)) / 60 ) <= 3000;
