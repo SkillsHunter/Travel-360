@@ -33,4 +33,4 @@ FROM ValidPartners
 WHERE 
     -- We use ABS (Absolute Value) because we don't care who flies first, 
     -- we just care about the gap between them.
-    ABS( EXTRACT(EPOCH FROM (Time_A - Time_B)) / 60 ) <= 3000;
+    ABS( EXTRACT(EPOCH FROM (Time_A - Time_B)) / 60 ) <= 30;
