@@ -178,6 +178,16 @@ with left:
         "MEM8821"
     )
 
+    company_id = st.selectbox(
+        "Company",
+        [
+            "COMPANY_A",
+            "COMPANY_B",
+            "COMPANY_C",
+            "COMPANY_D"
+        ]
+    )
+
     # DYNAMIC ROUTES
     available_routes = FLIGHTS_DF["route"].unique()
 
@@ -226,6 +236,7 @@ if search:
         "traveler_name": name,
         "passport_number": passport,
         "member_id": member_id,
+        "company_id": company_id,
         "route": route
     }
 
@@ -238,6 +249,7 @@ if search:
 
     st.divider()
 
+    # PRIVACY LAYER
     st.header("🔒 Privacy Verification Layer")
 
     privacy = data["privacy_check"]
@@ -270,6 +282,7 @@ if search:
 
     st.divider()
 
+    # FLIGHT RESULT
     flight = data["flight_result"]
 
     left2, right2 = st.columns([1.2, 1])
@@ -310,27 +323,42 @@ if search:
 
     st.divider()
 
+    # LIVE SQL POOLING
     st.header("🚖 Ride Pooling Opportunity")
 
-    st.markdown("""
-    <div class="pooling-card">
-        <h2>Shared Transit Match Detected</h2>
+    pooling = data.get("pooling", {})
 
-        <p>
-        Another verified traveler is arriving within
-        a 30-minute airport window.
-        </p>
+    if pooling.get("match_found"):
 
-        <ul>
-            <li>Estimated Savings: ₹950</li>
-            <li>Estimated CO₂ Reduction: 18%</li>
-            <li>Pooling Confidence Score: 92%</li>
-        </ul>
-    </div>
-    """, unsafe_allow_html=True)
+        st.markdown(f"""
+        <div class="pooling-card">
+
+            <h2>🚖 Shared Transit Match Detected</h2>
+
+            <p>
+            Multi-tenant ride-sharing opportunity identified
+            using real-time airport arrival matching.
+            </p>
+
+            <ul>
+                <li>Total Pooling Matches: {pooling.get('total_matches')}</li>
+                <li>Estimated Savings: ₹950</li>
+                <li>Estimated CO₂ Reduction: 18%</li>
+                <li>Pooling Confidence Score: 92%</li>
+            </ul>
+
+        </div>
+        """, unsafe_allow_html=True)
+
+    else:
+
+        st.info(
+            "No live pooling opportunities detected."
+        )
 
     st.divider()
 
+    # GOVERNANCE
     st.header("🛡 Governance Workflow")
 
     st.warning(
