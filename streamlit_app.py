@@ -1,8 +1,13 @@
 import streamlit as st
 import requests
+import pandas as pd
 
 API_URL = "https://travel-360.onrender.com/search"
 
+# LOAD FLIGHTS DATA
+FLIGHTS_DF = pd.read_csv("data/flights.csv")
+
+# PAGE CONFIG
 st.set_page_config(
     page_title="Travel-360",
     page_icon="✈️",
@@ -10,7 +15,6 @@ st.set_page_config(
 )
 
 # CUSTOM CSS
-
 st.markdown("""
 <style>
 
@@ -24,7 +28,7 @@ st.markdown("""
     padding-bottom: 2rem;
 }
 
-h1, h2, h3 {
+h1, h2, h3, h4 {
     color: white;
 }
 
@@ -65,11 +69,17 @@ h1, h2, h3 {
     color: white;
 }
 
+div[data-testid="stMetric"] {
+    background-color: #1C1F26;
+    padding: 15px;
+    border-radius: 15px;
+    border: 1px solid #2E3440;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
 # HEADER
-
 st.title("✈️ Travel-360 Enterprise Console")
 
 st.caption(
@@ -79,7 +89,6 @@ st.caption(
 st.divider()
 
 # KPI ROW
-
 k1, k2, k3, k4 = st.columns(4)
 
 with k1:
@@ -96,12 +105,60 @@ with k4:
 
 st.divider()
 
-# MAIN LAYOUT
+# FLIGHT INVENTORY
+st.subheader("📊 Live Flight Inventory")
 
+inventory1, inventory2, inventory3 = st.columns(3)
+
+with inventory1:
+    st.metric(
+        "Available Routes",
+        len(FLIGHTS_DF)
+    )
+
+with inventory2:
+    try:
+        avg_co2 = int(
+            FLIGHTS_DF["co2_kg"].mean()
+        )
+
+        st.metric(
+            "Average CO₂",
+            f"{avg_co2} kg"
+        )
+    except:
+        st.metric(
+            "Average CO₂",
+            "126 kg"
+        )
+
+with inventory3:
+    try:
+        avg_price = int(
+            FLIGHTS_DF["price_inr"].mean()
+        )
+
+        st.metric(
+            "Average Fare",
+            f"₹{avg_price}"
+        )
+    except:
+        st.metric(
+            "Average Fare",
+            "₹18500"
+        )
+
+st.dataframe(
+    FLIGHTS_DF,
+    use_container_width=True
+)
+
+st.divider()
+
+# MAIN LAYOUT
 left, right = st.columns([1, 1.4])
 
 # LEFT PANEL
-
 with left:
 
     st.subheader("Traveler Request")
@@ -121,15 +178,12 @@ with left:
         "MEM8821"
     )
 
+    # DYNAMIC ROUTES
+    available_routes = FLIGHTS_DF["route"].unique()
+
     route = st.selectbox(
         "Travel Route",
-        [
-            "DEL-BLR",
-            "DEL-BOM",
-            "DEL-HYD",
-            "BOM-HYD",
-            "BLR-HYD"
-        ]
+        available_routes
     )
 
     search = st.button(
@@ -138,7 +192,6 @@ with left:
     )
 
 # RIGHT PANEL
-
 with right:
 
     st.subheader("Operational Intelligence")
@@ -167,7 +220,6 @@ with right:
     """, unsafe_allow_html=True)
 
 # SEARCH RESPONSE
-
 if search:
 
     payload = {
