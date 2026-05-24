@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-
+from app.models.travel_request import TravelRequest
+from app.services.pooling_service import find_pooling_matches
 from app.db.database import get_db
 from app.services.deid_service import DeIdentificationService
 from app.services.esg_service import (
