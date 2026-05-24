@@ -369,8 +369,15 @@ if search:
         "Manager Justification"
     )
 
+   if "approval_status" not in st.session_state:
+    st.session_state.approval_status = False
+
     if st.button("Approve Exception"):
 
+        st.session_state.approval_status = True
+
+    if st.session_state.approval_status:
+
         st.success(
-            "Approval successfully logged."
+            "✅ Approval successfully logged."
         )
