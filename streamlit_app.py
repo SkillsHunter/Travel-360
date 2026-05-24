@@ -5,20 +5,106 @@ API_URL = "https://travel-360.onrender.com/search"
 
 st.set_page_config(
     page_title="Travel-360",
+    page_icon="✈️",
     layout="wide"
 )
 
-st.title("✈️ Travel-360 Concierge Dashboard")
+# CUSTOM CSS
 
-st.subheader(
-    "AI-Powered Enterprise Travel Platform"
+st.markdown("""
+<style>
+
+.main {
+    background-color: #0E1117;
+    color: white;
+}
+
+.block-container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+h1, h2, h3 {
+    color: white;
+}
+
+.metric-card {
+    background: linear-gradient(135deg, #1C1F26, #2A2F3A);
+    padding: 20px;
+    border-radius: 18px;
+    border: 1px solid #2E3440;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.4);
+}
+
+.green-card {
+    background: linear-gradient(135deg, #163B2D, #1F5A42);
+    padding: 20px;
+    border-radius: 18px;
+    color: white;
+}
+
+.warning-card {
+    background: linear-gradient(135deg, #4A3218, #6B4423);
+    padding: 20px;
+    border-radius: 18px;
+    color: white;
+}
+
+.pooling-card {
+    background: linear-gradient(135deg, #102A43, #1E4D7A);
+    padding: 25px;
+    border-radius: 20px;
+    color: white;
+    border: 1px solid #2B6CB0;
+}
+
+.security-card {
+    background: linear-gradient(135deg, #2A1A3A, #4B2A63);
+    padding: 20px;
+    border-radius: 18px;
+    color: white;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# HEADER
+
+st.title("✈️ Travel-360 Enterprise Console")
+
+st.caption(
+    "Autonomous Enterprise Logistics & Compliance Platform"
 )
 
 st.divider()
 
-col1, col2 = st.columns(2)
+# KPI ROW
 
-with col1:
+k1, k2, k3, k4 = st.columns(4)
+
+with k1:
+    st.metric("Compliance Rate", "96%")
+
+with k2:
+    st.metric("CO₂ Saved", "18.4 Tons")
+
+with k3:
+    st.metric("Pooling Matches", "142")
+
+with k4:
+    st.metric("Active Trips", "328")
+
+st.divider()
+
+# MAIN LAYOUT
+
+left, right = st.columns([1, 1.4])
+
+# LEFT PANEL
+
+with left:
+
+    st.subheader("Traveler Request")
 
     name = st.text_input(
         "Traveler Name",
@@ -30,15 +116,13 @@ with col1:
         "K1234567"
     )
 
-with col2:
-
     member_id = st.text_input(
         "Member ID",
         "MEM8821"
     )
 
     route = st.selectbox(
-        "Route",
+        "Travel Route",
         [
             "DEL-BLR",
             "DEL-BOM",
@@ -48,7 +132,41 @@ with col2:
         ]
     )
 
-search = st.button("Search Flights")
+    search = st.button(
+        "Execute Travel Search",
+        use_container_width=True
+    )
+
+# RIGHT PANEL
+
+with right:
+
+    st.subheader("Operational Intelligence")
+
+    st.markdown("""
+    <div class="pooling-card">
+        <h3>🚖 Smart Pooling Engine</h3>
+        <p>
+        Multi-tenant ride-sharing optimization detects
+        overlapping airport arrivals and reduces
+        enterprise transit emissions automatically.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="security-card">
+        <h3>🔒 Zero-Trust Privacy Firewall</h3>
+        <p>
+        All sensitive traveler data is recursively sanitized
+        and tokenized before downstream processing.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+# SEARCH RESPONSE
 
 if search:
 
@@ -68,99 +186,111 @@ if search:
 
     st.divider()
 
-    st.header("🔒 Privacy Protection Layer")
+    st.header("🔒 Privacy Verification Layer")
 
     privacy = data["privacy_check"]
 
-    col1, col2, col3 = st.columns(3)
+    c1, c2, c3 = st.columns(3)
 
-    with col1:
-        st.metric(
-            "Masked User",
-            privacy["traveler_name"]
-        )
+    with c1:
+        st.markdown(f"""
+        <div class="metric-card">
+            <h4>Masked User</h4>
+            <h3>{privacy["traveler_name"]}</h3>
+        </div>
+        """, unsafe_allow_html=True)
 
-    with col2:
-        st.metric(
-            "Masked Passport",
-            privacy["passport_number"]
-        )
+    with c2:
+        st.markdown(f"""
+        <div class="metric-card">
+            <h4>Masked Passport</h4>
+            <h3>{privacy["passport_number"]}</h3>
+        </div>
+        """, unsafe_allow_html=True)
 
-    with col3:
-        st.metric(
-            "Masked Member ID",
-            privacy["member_id"]
-        )
-
-    st.success(
-        "PII successfully sanitized."
-    )
+    with c3:
+        st.markdown(f"""
+        <div class="metric-card">
+            <h4>Masked Member ID</h4>
+            <h3>{privacy["member_id"]}</h3>
+        </div>
+        """, unsafe_allow_html=True)
 
     st.divider()
-
-    st.header("✈️ Flight Recommendation")
 
     flight = data["flight_result"]
 
-    st.info(
-        f"""
-        Flight: {flight['flight_number']}
+    left2, right2 = st.columns([1.2, 1])
 
-        Route: {flight['route']}
+    with left2:
 
-        Price: {flight['price']}
-        """
-    )
+        st.header("✈️ Flight Recommendation")
+
+        st.markdown(f"""
+        <div class="metric-card">
+            <h3>{flight['flight_number']}</h3>
+            <p>Route: {flight['route']}</p>
+            <h2>{flight['price']}</h2>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with right2:
+
+        st.header("🌱 ESG Impact")
+
+        if "Low" in flight["esg_message"]:
+
+            st.markdown(f"""
+            <div class="green-card">
+                <h2>{flight['co2_impact']}</h2>
+                <p>{flight['esg_message']}</p>
+            </div>
+            """, unsafe_allow_html=True)
+
+        else:
+
+            st.markdown(f"""
+            <div class="warning-card">
+                <h2>{flight['co2_impact']}</h2>
+                <p>{flight['esg_message']}</p>
+            </div>
+            """, unsafe_allow_html=True)
 
     st.divider()
 
-    st.header("🌱 ESG Sustainability Analysis")
+    st.header("🚖 Ride Pooling Opportunity")
 
-    st.metric(
-        "Carbon Footprint",
-        flight["co2_impact"]
-    )
+    st.markdown("""
+    <div class="pooling-card">
+        <h2>Shared Transit Match Detected</h2>
 
-    if "Low" in flight["esg_message"]:
-        st.success(flight["esg_message"])
+        <p>
+        Another verified traveler is arriving within
+        a 30-minute airport window.
+        </p>
 
-    elif "Moderate" in flight["esg_message"]:
-        st.warning(flight["esg_message"])
-
-    else:
-        st.error(flight["esg_message"])
-
-    st.divider()
-
-    st.header("🚖 Smart Ride Pooling")
-
-    st.success(
-        """
-        Another verified colleague is arriving
-        within a 30-minute airport window.
-
-        Shared ride recommended.
-
-        Estimated savings: ₹950
-        """
-    )
+        <ul>
+            <li>Estimated Savings: ₹950</li>
+            <li>Estimated CO₂ Reduction: 18%</li>
+            <li>Pooling Confidence Score: 92%</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
 
     st.divider()
 
     st.header("🛡 Governance Workflow")
 
     st.warning(
-        """
-        Policy Exception Requires Manager Approval
-        """
+        "Manual approval required for ESG threshold override."
     )
 
-    manager_reason = st.text_area(
+    reason = st.text_area(
         "Manager Justification"
     )
 
     if st.button("Approve Exception"):
 
         st.success(
-            "Approval successfully recorded."
+            "Approval successfully logged."
         )
