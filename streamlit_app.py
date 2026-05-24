@@ -369,15 +369,24 @@ if search:
         "Manager Justification"
     )
 
-   if "approval_status" not in st.session_state:
+  if "approval_status" not in st.session_state:
     st.session_state.approval_status = False
 
-    if st.button("Approve Exception"):
+if st.button(
+    "Approve Exception",
+    use_container_width=True
+):
 
-        st.session_state.approval_status = True
+    st.session_state.approval_status = True
 
-    if st.session_state.approval_status:
+if st.session_state.approval_status:
 
-        st.success(
-            "✅ Approval successfully logged."
-        )
+    st.balloons()
+
+    st.success(
+        """
+        Governance approval recorded successfully.
+
+        Audit trail updated.
+        """
+    )
