@@ -22,9 +22,10 @@ def find_pooling_matches(db):
         FROM travel_requests AS Person_A
 
         JOIN travel_requests AS Person_B
-
+        
         ON Person_A.airport_code = Person_B.airport_code
         AND Person_A.travel_date = Person_B.travel_date
+        AND Person_A.request_id < Person_B.request_id
 
     ),
 
