@@ -295,12 +295,25 @@ if search:
     with left2:
 
         st.header("✈️ Flight Recommendation")
-
         st.markdown(f"""
         <div class="metric-card">
+        
+            <h2>{flight['airline']}</h2>
+        
             <h3>{flight['flight_number']}</h3>
-            <p>Route: {flight['route']}</p>
+        
+            <p><b>Route:</b> {flight['route']}</p>
+        
+            <p><b>Date:</b> {flight['travel_date']}</p>
+        
+            <p><b>Departure:</b> {flight['departure_time']}</p>
+        
+            <p><b>Arrival:</b> {flight['arrival_time']}</p>
+        
+            <p><b>Cabin:</b> {flight['cabin_class']}</p>
+        
             <h2>{flight['price']}</h2>
+        
         </div>
         """, unsafe_allow_html=True)
 
