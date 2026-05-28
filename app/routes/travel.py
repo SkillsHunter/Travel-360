@@ -85,7 +85,7 @@ async def search_travel(
     # FINAL RESPONSE
     # -----------------------------
 
-        return {
+    return {
 
         "privacy_check": sanitized_payload,
 
