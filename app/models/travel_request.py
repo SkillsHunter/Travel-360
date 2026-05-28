@@ -22,6 +22,8 @@ class TravelRequest(Base):
 
     route = Column(String)
 
+    travel_date = Column(String)
+
     request_time = Column(
         DateTime,
         default=datetime.utcnow
