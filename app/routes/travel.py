@@ -62,7 +62,9 @@ async def search_travel(
 
         airport_code=airport_code,
 
-        travel_date=payload.get("travel_date"),
+        travel_date=payload.get(
+            "travel_date"
+        ),
 
         route=route
     )
