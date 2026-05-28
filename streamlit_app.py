@@ -178,6 +178,10 @@ with left:
         "MEM8821"
     )
 
+    travel_date = st.date_input(
+    "Travel Date"
+    )
+
     company_id = st.selectbox(
         "Company",
         [
@@ -237,7 +241,8 @@ if search:
         "passport_number": passport,
         "member_id": member_id,
         "company_id": company_id,
-        "route": route
+        "route": route,
+        "travel_date": str(travel_date)
     }
 
     response = requests.post(
