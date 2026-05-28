@@ -333,35 +333,86 @@ if search:
         with left2:
 
             st.header("✈️ Flight Recommendation")
-
+        
             flight_html = f"""
             <div class="metric-card">
-
-                <h2>{flight['airline']}</h2>
-
-                <h3>{flight['flight_number']}</h3>
-
-                <p><b>Route:</b> {flight['route']}</p>
-
-                <p><b>Date:</b> {flight['travel_date']}</p>
-
-                <p><b>Departure:</b> {flight['departure_time']}</p>
-
-                <p><b>Arrival:</b> {flight['arrival_time']}</p>
-
-                <p><b>Cabin:</b> {flight['cabin_class']}</p>
-
-                <p><b>ESG Rating:</b> {flight['esg_rating']}</p>
-
-                <h2>{flight['price']}</h2>
-
+        
+                <div style="font-size:30px;font-weight:bold;">
+                    {flight['airline']}
+                </div>
+        
+                <div style="font-size:24px;font-weight:600;margin-top:10px;">
+                    {flight['flight_number']}
+                </div>
+        
+                <div style="margin-top:15px;">
+                    <b>Route:</b> {flight['route']}
+                </div>
+        
+                <div>
+                    <b>Date:</b> {flight['travel_date']}
+                </div>
+        
+                <div>
+                    <b>Departure:</b> {flight['departure_time']}
+                </div>
+        
+                <div>
+                    <b>Arrival:</b> {flight['arrival_time']}
+                </div>
+        
+                <div>
+                    <b>Cabin:</b> {flight['cabin_class']}
+                </div>
+        
+                <div>
+                    <b>ESG Rating:</b> {flight['esg_rating']}
+                </div>
+        
+                <div style="font-size:28px;font-weight:bold;margin-top:18px;">
+                    {flight['price']}
+                </div>
+        
             </div>
             """
-
+        
             st.markdown(
                 flight_html,
                 unsafe_allow_html=True
             )
+        
+        # with left2:
+
+        #     st.header("✈️ Flight Recommendation")
+
+        #     flight_html = f"""
+        #     <div class="metric-card">
+
+        #         <h2>{flight['airline']}</h2>
+
+        #         <h3>{flight['flight_number']}</h3>
+
+        #         <p><b>Route:</b> {flight['route']}</p>
+
+        #         <p><b>Date:</b> {flight['travel_date']}</p>
+
+        #         <p><b>Departure:</b> {flight['departure_time']}</p>
+
+        #         <p><b>Arrival:</b> {flight['arrival_time']}</p>
+
+        #         <p><b>Cabin:</b> {flight['cabin_class']}</p>
+
+        #         <p><b>ESG Rating:</b> {flight['esg_rating']}</p>
+
+        #         <h2>{flight['price']}</h2>
+
+        #     </div>
+        #     """
+
+        #     st.markdown(
+        #         flight_html,
+        #         unsafe_allow_html=True
+        #     )
 
         with right2:
 
@@ -400,26 +451,52 @@ if search:
 
         if pooling.get("match_found"):
 
+            # st.markdown(
+            #     f"""
+            #     <div class="pooling-card">
+
+            #         <h2>🚖 Shared Transit Match Detected</h2>
+
+            #         <p>
+            #         Multi-tenant ride-sharing opportunity identified
+            #         using real-time airport arrival matching.
+            #         </p>
+
+            #         <ul>
+            #             <li>Total Pooling Matches: {pooling.get('total_matches')}</li>
+            #             <li>Airport: {pooling.get('airport_code')}</li>
+            #             <li>Travel Date: {pooling.get('travel_date')}</li>
+            #             <li>Estimated Savings: ₹950</li>
+            #             <li>Estimated CO₂ Reduction: 18%</li>
+            #             <li>Pooling Confidence Score: 92%</li>
+            #         </ul>
+
+            #     </div>
+            #     """,
+            #     unsafe_allow_html=True
+            # )
             st.markdown(
                 f"""
                 <div class="pooling-card">
-
-                    <h2>🚖 Shared Transit Match Detected</h2>
-
-                    <p>
-                    Multi-tenant ride-sharing opportunity identified
-                    using real-time airport arrival matching.
-                    </p>
-
-                    <ul>
-                        <li>Total Pooling Matches: {pooling.get('total_matches')}</li>
-                        <li>Airport: {pooling.get('airport_code')}</li>
-                        <li>Travel Date: {pooling.get('travel_date')}</li>
-                        <li>Estimated Savings: ₹950</li>
-                        <li>Estimated CO₂ Reduction: 18%</li>
-                        <li>Pooling Confidence Score: 92%</li>
-                    </ul>
-
+            
+                    <div style="font-size:28px;font-weight:bold;">
+                        🚖 Shared Transit Match Detected
+                    </div>
+            
+                    <div style="margin-top:15px;">
+                        Multi-tenant ride-sharing opportunity identified
+                        using real-time airport arrival matching.
+                    </div>
+            
+                    <div style="margin-top:20px;">
+                        • Total Pooling Matches: {pooling.get('total_matches')}<br>
+                        • Airport: {pooling.get('airport_code')}<br>
+                        • Travel Date: {pooling.get('travel_date')}<br>
+                        • Estimated Savings: ₹950<br>
+                        • Estimated CO₂ Reduction: 18%<br>
+                        • Pooling Confidence Score: 92%
+                    </div>
+            
                 </div>
                 """,
                 unsafe_allow_html=True
