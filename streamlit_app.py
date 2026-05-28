@@ -261,15 +261,18 @@ if search:
 
     try:
 
-        response = requests.post(
-            API_URL,
-            json=payload
-            )
+        response = requests.post(API_URL, json=payload)
+
         st.write("Status Code:", response.status_code)
-        st.write("Response Text:")
+        
+        st.write("Raw Response:")
         st.code(response.text)
         
-        data = response.json()
+        try:
+            data = response.json()
+        except Exception as e:
+            st.error("JSON parsing failed")
+            st.stop()
 
         st.divider()
 
