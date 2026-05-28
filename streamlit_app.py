@@ -36,43 +36,6 @@ h1, h2, h3, h4 {
     color: white;
 }
 
-.metric-card {
-    background: linear-gradient(135deg, #1C1F26, #2A2F3A);
-    padding: 20px;
-    border-radius: 18px;
-    border: 1px solid #2E3440;
-    box-shadow: 0px 4px 12px rgba(0,0,0,0.4);
-}
-
-.green-card {
-    background: linear-gradient(135deg, #163B2D, #1F5A42);
-    padding: 20px;
-    border-radius: 18px;
-    color: white;
-}
-
-.warning-card {
-    background: linear-gradient(135deg, #4A3218, #6B4423);
-    padding: 20px;
-    border-radius: 18px;
-    color: white;
-}
-
-.pooling-card {
-    background: linear-gradient(135deg, #102A43, #1E4D7A);
-    padding: 25px;
-    border-radius: 20px;
-    color: white;
-    border: 1px solid #2B6CB0;
-}
-
-.security-card {
-    background: linear-gradient(135deg, #2A1A3A, #4B2A63);
-    padding: 20px;
-    border-radius: 18px;
-    color: white;
-}
-
 div[data-testid="stMetric"] {
     background-color: #1C1F26;
     padding: 15px;
@@ -80,7 +43,7 @@ div[data-testid="stMetric"] {
     border: 1px solid #2E3440;
 }
 
-html, body, [class*="css"]  {
+html, body, [class*="css"] {
     background-color: #0E1117;
     color: white;
 }
@@ -226,28 +189,24 @@ with right:
 
     st.subheader("Operational Intelligence")
 
-    st.markdown("""
-    <div class="pooling-card">
-        <h3>🚖 Smart Pooling Engine</h3>
-        <p>
+    st.info(
+        """
+        🚖 Smart Pooling Engine
+        
         Multi-tenant ride-sharing optimization detects
         overlapping airport arrivals and reduces
         enterprise transit emissions automatically.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+        """
+    )
 
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    st.markdown("""
-    <div class="security-card">
-        <h3>🔒 Zero-Trust Privacy Firewall</h3>
-        <p>
+    st.warning(
+        """
+        🔒 Zero-Trust Privacy Firewall
+        
         All sensitive traveler data is recursively sanitized
         and tokenized before downstream processing.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+        """
+    )
 
 # SEARCH RESPONSE
 if search:
@@ -288,39 +247,21 @@ if search:
         c1, c2, c3 = st.columns(3)
 
         with c1:
-
-            st.markdown(
-                f"""
-                <div class="metric-card">
-                    <h4>Masked User</h4>
-                    <h3>{privacy["traveler_name"]}</h3>
-                </div>
-                """,
-                unsafe_allow_html=True
+            st.metric(
+                "Masked User",
+                privacy["traveler_name"]
             )
 
         with c2:
-
-            st.markdown(
-                f"""
-                <div class="metric-card">
-                    <h4>Masked Passport</h4>
-                    <h3>{privacy["passport_number"]}</h3>
-                </div>
-                """,
-                unsafe_allow_html=True
+            st.metric(
+                "Masked Passport",
+                privacy["passport_number"]
             )
 
         with c3:
-
-            st.markdown(
-                f"""
-                <div class="metric-card">
-                    <h4>Masked Member ID</h4>
-                    <h3>{privacy["member_id"]}</h3>
-                </div>
-                """,
-                unsafe_allow_html=True
+            st.metric(
+                "Masked Member ID",
+                privacy["member_id"]
             )
 
         st.divider()
@@ -333,86 +274,40 @@ if search:
         with left2:
 
             st.header("✈️ Flight Recommendation")
-        
-            flight_html = f"""
-            <div class="metric-card">
-        
-                <div style="font-size:30px;font-weight:bold;">
-                    {flight['airline']}
-                </div>
-        
-                <div style="font-size:24px;font-weight:600;margin-top:10px;">
-                    {flight['flight_number']}
-                </div>
-        
-                <div style="margin-top:15px;">
-                    <b>Route:</b> {flight['route']}
-                </div>
-        
-                <div>
-                    <b>Date:</b> {flight['travel_date']}
-                </div>
-        
-                <div>
-                    <b>Departure:</b> {flight['departure_time']}
-                </div>
-        
-                <div>
-                    <b>Arrival:</b> {flight['arrival_time']}
-                </div>
-        
-                <div>
-                    <b>Cabin:</b> {flight['cabin_class']}
-                </div>
-        
-                <div>
-                    <b>ESG Rating:</b> {flight['esg_rating']}
-                </div>
-        
-                <div style="font-size:28px;font-weight:bold;margin-top:18px;">
-                    {flight['price']}
-                </div>
-        
-            </div>
-            """
-        
-            st.markdown(
-                flight_html,
-                unsafe_allow_html=True
-            )
-        
-        # with left2:
 
-        #     st.header("✈️ Flight Recommendation")
+            with st.container(border=True):
 
-        #     flight_html = f"""
-        #     <div class="metric-card">
+                st.subheader(
+                    f"{flight['airline']} • {flight['flight_number']}"
+                )
 
-        #         <h2>{flight['airline']}</h2>
+                st.write(
+                    f"**Route:** {flight['route']}"
+                )
 
-        #         <h3>{flight['flight_number']}</h3>
+                st.write(
+                    f"**Date:** {flight['travel_date']}"
+                )
 
-        #         <p><b>Route:</b> {flight['route']}</p>
+                st.write(
+                    f"**Departure:** {flight['departure_time']}"
+                )
 
-        #         <p><b>Date:</b> {flight['travel_date']}</p>
+                st.write(
+                    f"**Arrival:** {flight['arrival_time']}"
+                )
 
-        #         <p><b>Departure:</b> {flight['departure_time']}</p>
+                st.write(
+                    f"**Cabin:** {flight['cabin_class']}"
+                )
 
-        #         <p><b>Arrival:</b> {flight['arrival_time']}</p>
+                st.write(
+                    f"**ESG Rating:** {flight['esg_rating']}"
+                )
 
-        #         <p><b>Cabin:</b> {flight['cabin_class']}</p>
-
-        #         <p><b>ESG Rating:</b> {flight['esg_rating']}</p>
-
-        #         <h2>{flight['price']}</h2>
-
-        #     </div>
-        #     """
-
-        #     st.markdown(
-        #         flight_html,
-        #         unsafe_allow_html=True
-        #     )
+                st.success(
+                    f"Fare: {flight['price']}"
+                )
 
         with right2:
 
@@ -420,26 +315,22 @@ if search:
 
             if "Low" in flight["esg_message"]:
 
-                st.markdown(
+                st.success(
                     f"""
-                    <div class="green-card">
-                        <h2>{flight['co2_impact']}</h2>
-                        <p>{flight['esg_message']}</p>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
+                    CO₂ Impact: {flight['co2_impact']}
+                    
+                    {flight['esg_message']}
+                    """
                 )
 
             else:
 
-                st.markdown(
+                st.warning(
                     f"""
-                    <div class="warning-card">
-                        <h2>{flight['co2_impact']}</h2>
-                        <p>{flight['esg_message']}</p>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
+                    CO₂ Impact: {flight['co2_impact']}
+                    
+                    {flight['esg_message']}
+                    """
                 )
 
         st.divider()
@@ -451,55 +342,39 @@ if search:
 
         if pooling.get("match_found"):
 
-            # st.markdown(
-            #     f"""
-            #     <div class="pooling-card">
+            st.success(
+                "🚖 Shared Transit Match Detected"
+            )
 
-            #         <h2>🚖 Shared Transit Match Detected</h2>
+            st.write(
+                """
+                Multi-tenant ride-sharing opportunity identified
+                using real-time airport arrival matching.
+                """
+            )
 
-            #         <p>
-            #         Multi-tenant ride-sharing opportunity identified
-            #         using real-time airport arrival matching.
-            #         </p>
+            st.write(
+                f"• Total Pooling Matches: {pooling.get('total_matches')}"
+            )
 
-            #         <ul>
-            #             <li>Total Pooling Matches: {pooling.get('total_matches')}</li>
-            #             <li>Airport: {pooling.get('airport_code')}</li>
-            #             <li>Travel Date: {pooling.get('travel_date')}</li>
-            #             <li>Estimated Savings: ₹950</li>
-            #             <li>Estimated CO₂ Reduction: 18%</li>
-            #             <li>Pooling Confidence Score: 92%</li>
-            #         </ul>
+            st.write(
+                f"• Airport: {pooling.get('airport_code')}"
+            )
 
-            #     </div>
-            #     """,
-            #     unsafe_allow_html=True
-            # )
-            st.markdown(
-                f"""
-                <div class="pooling-card">
-            
-                    <div style="font-size:28px;font-weight:bold;">
-                        🚖 Shared Transit Match Detected
-                    </div>
-            
-                    <div style="margin-top:15px;">
-                        Multi-tenant ride-sharing opportunity identified
-                        using real-time airport arrival matching.
-                    </div>
-            
-                    <div style="margin-top:20px;">
-                        • Total Pooling Matches: {pooling.get('total_matches')}<br>
-                        • Airport: {pooling.get('airport_code')}<br>
-                        • Travel Date: {pooling.get('travel_date')}<br>
-                        • Estimated Savings: ₹950<br>
-                        • Estimated CO₂ Reduction: 18%<br>
-                        • Pooling Confidence Score: 92%
-                    </div>
-            
-                </div>
-                """,
-                unsafe_allow_html=True
+            st.write(
+                f"• Travel Date: {pooling.get('travel_date')}"
+            )
+
+            st.write(
+                "• Estimated Savings: ₹950"
+            )
+
+            st.write(
+                "• Estimated CO₂ Reduction: 18%"
+            )
+
+            st.write(
+                "• Pooling Confidence Score: 92%"
             )
 
         else:
