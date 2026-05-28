@@ -54,6 +54,8 @@ html, body, [class*="css"] {
 # HEADER
 st.title("✈️ Travel-360 Enterprise Console")
 
+st.success("NEW VERSION DEPLOYED")
+
 st.caption(
     "Autonomous Enterprise Logistics & Compliance Platform"
 )
