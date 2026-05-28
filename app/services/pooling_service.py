@@ -24,6 +24,7 @@ def find_pooling_matches(db):
         JOIN travel_requests AS Person_B
 
         ON Person_A.airport_code = Person_B.airport_code
+        AND Person_A.travel_date = Person_B.travel_date
 
     ),
 
