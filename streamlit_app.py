@@ -356,7 +356,7 @@ if search:
             )
 
             st.write(
-                f"• Total Pooling Matches: {pooling.get('total_matches')}"
+                f"• Pooling Opportunities: {pooling.get('total_matches')}"
             )
 
             st.write(
