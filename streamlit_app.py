@@ -264,8 +264,11 @@ if search:
         response = requests.post(
             API_URL,
             json=payload
-        )
-
+            )
+        st.write("Status Code:", response.status_code)
+        st.write("Response Text:")
+        st.code(response.text)
+        
         data = response.json()
 
         st.divider()
