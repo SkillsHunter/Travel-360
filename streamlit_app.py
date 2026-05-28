@@ -126,6 +126,7 @@ with inventory1:
     )
 
 with inventory2:
+
     avg_co2 = int(
         FLIGHTS_DF["co2_kg"].mean()
     )
@@ -136,6 +137,7 @@ with inventory2:
     )
 
 with inventory3:
+
     avg_price = int(
         FLIGHTS_DF["price_inr"].mean()
     )
@@ -261,18 +263,20 @@ if search:
 
     try:
 
-        response = requests.post(API_URL, json=payload)
+        response = requests.post(
+            API_URL,
+            json=payload
+        )
 
-        st.write("Status Code:", response.status_code)
-        
-        st.write("Raw Response:")
-        st.code(response.text)
-        
-        try:
-            data = response.json()
-        except Exception as e:
-            st.error("JSON parsing failed")
+        if response.status_code != 200:
+
+            st.error(
+                f"Backend Error: {response.status_code}"
+            )
+
             st.stop()
+
+        data = response.json()
 
         st.divider()
 
@@ -284,28 +288,40 @@ if search:
         c1, c2, c3 = st.columns(3)
 
         with c1:
-            st.markdown(f"""
-            <div class="metric-card">
-                <h4>Masked User</h4>
-                <h3>{privacy["traveler_name"]}</h3>
-            </div>
-            """, unsafe_allow_html=True)
+
+            st.markdown(
+                f"""
+                <div class="metric-card">
+                    <h4>Masked User</h4>
+                    <h3>{privacy["traveler_name"]}</h3>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
         with c2:
-            st.markdown(f"""
-            <div class="metric-card">
-                <h4>Masked Passport</h4>
-                <h3>{privacy["passport_number"]}</h3>
-            </div>
-            """, unsafe_allow_html=True)
+
+            st.markdown(
+                f"""
+                <div class="metric-card">
+                    <h4>Masked Passport</h4>
+                    <h3>{privacy["passport_number"]}</h3>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
         with c3:
-            st.markdown(f"""
-            <div class="metric-card">
-                <h4>Masked Member ID</h4>
-                <h3>{privacy["member_id"]}</h3>
-            </div>
-            """, unsafe_allow_html=True)
+
+            st.markdown(
+                f"""
+                <div class="metric-card">
+                    <h4>Masked Member ID</h4>
+                    <h3>{privacy["member_id"]}</h3>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
         st.divider()
 
@@ -318,7 +334,7 @@ if search:
 
             st.header("✈️ Flight Recommendation")
 
-            st.markdown(f"""
+            flight_html = f"""
             <div class="metric-card">
 
                 <h2>{flight['airline']}</h2>
@@ -340,7 +356,12 @@ if search:
                 <h2>{flight['price']}</h2>
 
             </div>
-            """, unsafe_allow_html=True)
+            """
+
+            st.markdown(
+                flight_html,
+                unsafe_allow_html=True
+            )
 
         with right2:
 
@@ -348,21 +369,27 @@ if search:
 
             if "Low" in flight["esg_message"]:
 
-                st.markdown(f"""
-                <div class="green-card">
-                    <h2>{flight['co2_impact']}</h2>
-                    <p>{flight['esg_message']}</p>
-                </div>
-                """, unsafe_allow_html=True)
+                st.markdown(
+                    f"""
+                    <div class="green-card">
+                        <h2>{flight['co2_impact']}</h2>
+                        <p>{flight['esg_message']}</p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
             else:
 
-                st.markdown(f"""
-                <div class="warning-card">
-                    <h2>{flight['co2_impact']}</h2>
-                    <p>{flight['esg_message']}</p>
-                </div>
-                """, unsafe_allow_html=True)
+                st.markdown(
+                    f"""
+                    <div class="warning-card">
+                        <h2>{flight['co2_impact']}</h2>
+                        <p>{flight['esg_message']}</p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
         st.divider()
 
@@ -373,27 +400,30 @@ if search:
 
         if pooling.get("match_found"):
 
-            st.markdown(f"""
-            <div class="pooling-card">
+            st.markdown(
+                f"""
+                <div class="pooling-card">
 
-                <h2>🚖 Shared Transit Match Detected</h2>
+                    <h2>🚖 Shared Transit Match Detected</h2>
 
-                <p>
-                Multi-tenant ride-sharing opportunity identified
-                using real-time airport arrival matching.
-                </p>
+                    <p>
+                    Multi-tenant ride-sharing opportunity identified
+                    using real-time airport arrival matching.
+                    </p>
 
-                <ul>
-                    <li>Total Pooling Matches: {pooling.get('total_matches')}</li>
-                    <li>Airport: {pooling.get('airport_code')}</li>
-                    <li>Travel Date: {pooling.get('travel_date')}</li>
-                    <li>Estimated Savings: ₹950</li>
-                    <li>Estimated CO₂ Reduction: 18%</li>
-                    <li>Pooling Confidence Score: 92%</li>
-                </ul>
+                    <ul>
+                        <li>Total Pooling Matches: {pooling.get('total_matches')}</li>
+                        <li>Airport: {pooling.get('airport_code')}</li>
+                        <li>Travel Date: {pooling.get('travel_date')}</li>
+                        <li>Estimated Savings: ₹950</li>
+                        <li>Estimated CO₂ Reduction: 18%</li>
+                        <li>Pooling Confidence Score: 92%</li>
+                    </ul>
 
-            </div>
-            """, unsafe_allow_html=True)
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
         else:
 
