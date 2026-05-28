@@ -14,6 +14,10 @@ st.set_page_config(
     layout="wide"
 )
 
+# SESSION STATE
+if "approval_status" not in st.session_state:
+    st.session_state.approval_status = False
+
 # CUSTOM CSS
 st.markdown("""
 <style>
@@ -76,6 +80,11 @@ div[data-testid="stMetric"] {
     border: 1px solid #2E3440;
 }
 
+html, body, [class*="css"]  {
+    background-color: #0E1117;
+    color: white;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -112,45 +121,51 @@ inventory1, inventory2, inventory3 = st.columns(3)
 
 with inventory1:
     st.metric(
-        "Available Routes",
+        "Available Flights",
         len(FLIGHTS_DF)
     )
 
 with inventory2:
-    try:
-        avg_co2 = int(
-            FLIGHTS_DF["co2_kg"].mean()
-        )
+    avg_co2 = int(
+        FLIGHTS_DF["co2_kg"].mean()
+    )
 
-        st.metric(
-            "Average CO₂",
-            f"{avg_co2} kg"
-        )
-    except:
-        st.metric(
-            "Average CO₂",
-            "126 kg"
-        )
+    st.metric(
+        "Average CO₂",
+        f"{avg_co2} kg"
+    )
 
 with inventory3:
-    try:
-        avg_price = int(
-            FLIGHTS_DF["price_inr"].mean()
-        )
+    avg_price = int(
+        FLIGHTS_DF["price_inr"].mean()
+    )
 
-        st.metric(
-            "Average Fare",
-            f"₹{avg_price}"
-        )
-    except:
-        st.metric(
-            "Average Fare",
-            "₹18500"
-        )
+    st.metric(
+        "Average Fare",
+        f"₹{avg_price}"
+    )
+
+display_df = FLIGHTS_DF.rename(
+    columns={
+        "flight_number": "Flight",
+        "airline": "Airline",
+        "route": "Route",
+        "departure_time": "Departure",
+        "arrival_time": "Arrival",
+        "duration_mins": "Duration (mins)",
+        "price_inr": "Price (₹)",
+        "co2_kg": "CO₂ Impact (kg)",
+        "seats_available": "Seats",
+        "cabin_class": "Cabin",
+        "esg_rating": "ESG Rating",
+        "airport_code": "Airport"
+    }
+)
 
 st.dataframe(
-    FLIGHTS_DF,
-    use_container_width=True
+    display_df,
+    use_container_width=True,
+    height=350
 )
 
 st.divider()
@@ -179,7 +194,7 @@ with left:
     )
 
     travel_date = st.date_input(
-    "Travel Date"
+        "Travel Date"
     )
 
     company_id = st.selectbox(
@@ -192,7 +207,6 @@ with left:
         ]
     )
 
-    # DYNAMIC ROUTES
     available_routes = FLIGHTS_DF["route"].unique()
 
     route = st.selectbox(
@@ -245,166 +259,178 @@ if search:
         "travel_date": str(travel_date)
     }
 
-    response = requests.post(
-        API_URL,
-        json=payload
-    )
+    try:
 
-    data = response.json()
+        response = requests.post(
+            API_URL,
+            json=payload
+        )
 
-    st.divider()
+        data = response.json()
 
-    # PRIVACY LAYER
-    st.header("🔒 Privacy Verification Layer")
+        st.divider()
 
-    privacy = data["privacy_check"]
+        # PRIVACY LAYER
+        st.header("🔒 Privacy Verification Layer")
 
-    c1, c2, c3 = st.columns(3)
+        privacy = data["privacy_check"]
 
-    with c1:
-        st.markdown(f"""
-        <div class="metric-card">
-            <h4>Masked User</h4>
-            <h3>{privacy["traveler_name"]}</h3>
-        </div>
-        """, unsafe_allow_html=True)
+        c1, c2, c3 = st.columns(3)
 
-    with c2:
-        st.markdown(f"""
-        <div class="metric-card">
-            <h4>Masked Passport</h4>
-            <h3>{privacy["passport_number"]}</h3>
-        </div>
-        """, unsafe_allow_html=True)
+        with c1:
+            st.markdown(f"""
+            <div class="metric-card">
+                <h4>Masked User</h4>
+                <h3>{privacy["traveler_name"]}</h3>
+            </div>
+            """, unsafe_allow_html=True)
 
-    with c3:
-        st.markdown(f"""
-        <div class="metric-card">
-            <h4>Masked Member ID</h4>
-            <h3>{privacy["member_id"]}</h3>
-        </div>
-        """, unsafe_allow_html=True)
+        with c2:
+            st.markdown(f"""
+            <div class="metric-card">
+                <h4>Masked Passport</h4>
+                <h3>{privacy["passport_number"]}</h3>
+            </div>
+            """, unsafe_allow_html=True)
 
-    st.divider()
+        with c3:
+            st.markdown(f"""
+            <div class="metric-card">
+                <h4>Masked Member ID</h4>
+                <h3>{privacy["member_id"]}</h3>
+            </div>
+            """, unsafe_allow_html=True)
 
-    # FLIGHT RESULT
-    flight = data["flight_result"]
+        st.divider()
 
-    left2, right2 = st.columns([1.2, 1])
+        # FLIGHT RESULT
+        flight = data["flight_result"]
 
-    with left2:
+        left2, right2 = st.columns([1.2, 1])
 
-        st.header("✈️ Flight Recommendation")
-        st.markdown(f"""
-        <div class="metric-card">
-        
-            <h2>{flight['airline']}</h2>
-        
-            <h3>{flight['flight_number']}</h3>
-        
-            <p><b>Route:</b> {flight['route']}</p>
-        
-            <p><b>Date:</b> {flight['travel_date']}</p>
-        
-            <p><b>Departure:</b> {flight['departure_time']}</p>
-        
-            <p><b>Arrival:</b> {flight['arrival_time']}</p>
-        
-            <p><b>Cabin:</b> {flight['cabin_class']}</p>
-        
-            <h2>{flight['price']}</h2>
-        
-        </div>
-        """, unsafe_allow_html=True)
+        with left2:
 
-    with right2:
-
-        st.header("🌱 ESG Impact")
-
-        if "Low" in flight["esg_message"]:
+            st.header("✈️ Flight Recommendation")
 
             st.markdown(f"""
-            <div class="green-card">
-                <h2>{flight['co2_impact']}</h2>
-                <p>{flight['esg_message']}</p>
+            <div class="metric-card">
+
+                <h2>{flight['airline']}</h2>
+
+                <h3>{flight['flight_number']}</h3>
+
+                <p><b>Route:</b> {flight['route']}</p>
+
+                <p><b>Date:</b> {flight['travel_date']}</p>
+
+                <p><b>Departure:</b> {flight['departure_time']}</p>
+
+                <p><b>Arrival:</b> {flight['arrival_time']}</p>
+
+                <p><b>Cabin:</b> {flight['cabin_class']}</p>
+
+                <p><b>ESG Rating:</b> {flight['esg_rating']}</p>
+
+                <h2>{flight['price']}</h2>
+
+            </div>
+            """, unsafe_allow_html=True)
+
+        with right2:
+
+            st.header("🌱 ESG Impact")
+
+            if "Low" in flight["esg_message"]:
+
+                st.markdown(f"""
+                <div class="green-card">
+                    <h2>{flight['co2_impact']}</h2>
+                    <p>{flight['esg_message']}</p>
+                </div>
+                """, unsafe_allow_html=True)
+
+            else:
+
+                st.markdown(f"""
+                <div class="warning-card">
+                    <h2>{flight['co2_impact']}</h2>
+                    <p>{flight['esg_message']}</p>
+                </div>
+                """, unsafe_allow_html=True)
+
+        st.divider()
+
+        # LIVE SQL POOLING
+        st.header("🚖 Ride Pooling Opportunity")
+
+        pooling = data.get("pooling", {})
+
+        if pooling.get("match_found"):
+
+            st.markdown(f"""
+            <div class="pooling-card">
+
+                <h2>🚖 Shared Transit Match Detected</h2>
+
+                <p>
+                Multi-tenant ride-sharing opportunity identified
+                using real-time airport arrival matching.
+                </p>
+
+                <ul>
+                    <li>Total Pooling Matches: {pooling.get('total_matches')}</li>
+                    <li>Airport: {pooling.get('airport_code')}</li>
+                    <li>Travel Date: {pooling.get('travel_date')}</li>
+                    <li>Estimated Savings: ₹950</li>
+                    <li>Estimated CO₂ Reduction: 18%</li>
+                    <li>Pooling Confidence Score: 92%</li>
+                </ul>
+
             </div>
             """, unsafe_allow_html=True)
 
         else:
 
-            st.markdown(f"""
-            <div class="warning-card">
-                <h2>{flight['co2_impact']}</h2>
-                <p>{flight['esg_message']}</p>
-            </div>
-            """, unsafe_allow_html=True)
+            st.info(
+                "No live pooling opportunities detected."
+            )
 
-    st.divider()
+        st.divider()
 
-    # LIVE SQL POOLING
-    st.header("🚖 Ride Pooling Opportunity")
+        # GOVERNANCE
+        st.header("🛡 Governance Workflow")
 
-    pooling = data.get("pooling", {})
-
-    if pooling.get("match_found"):
-
-        st.markdown(f"""
-        <div class="pooling-card">
-
-            <h2>🚖 Shared Transit Match Detected</h2>
-
-            <p>
-            Multi-tenant ride-sharing opportunity identified
-            using real-time airport arrival matching.
-            </p>
-
-            <ul>
-                <li>Total Pooling Matches: {pooling.get('total_matches')}</li>
-                <li>Estimated Savings: ₹950</li>
-                <li>Estimated CO₂ Reduction: 18%</li>
-                <li>Pooling Confidence Score: 92%</li>
-            </ul>
-
-        </div>
-        """, unsafe_allow_html=True)
-
-    else:
-
-        st.info(
-            "No live pooling opportunities detected."
+        st.warning(
+            "Manual approval required for ESG threshold override."
         )
 
-    st.divider()
-
-    # GOVERNANCE
-    st.header("🛡 Governance Workflow")
-
-    st.warning(
-        "Manual approval required for ESG threshold override."
-    )
-
-    reason = st.text_area(
-        "Manager Justification"
-    )
-
-    if "approval_status" not in st.session_state:
-        st.session_state.approval_status = False
-
-    if st.button(
-        "Approve Exception",
-        use_container_width=True
-    ):
-
-        st.session_state.approval_status = True
-
-    if st.session_state.approval_status:
-
-        st.balloons()
-
-        st.success(
-            """
-            Governance approval recorded successfully.
-
-            Audit trail updated.
-            """
+        reason = st.text_area(
+            "Manager Justification"
         )
+
+        if st.button(
+            "Approve Exception",
+            use_container_width=True
+        ):
+
+            st.session_state.approval_status = True
+
+        if st.session_state.approval_status:
+
+            st.balloons()
+
+            st.success(
+                """
+                Governance approval recorded successfully.
+
+                Audit trail updated.
+                """
+            )
+
+    except Exception as e:
+
+        st.error(
+            "Backend connection failed. Please check Render deployment."
+        )
+
+        st.exception(e)
