@@ -83,13 +83,26 @@ async def search_travel(
         len(pooling_matches) > 0
     )
     
+    # # COUNT UNIQUE TRAVELERS
+    # unique_travelers = set()
+    
+    # for row in pooling_matches:
+    
+    #     unique_travelers.add(row.ID_A)
+    #     unique_travelers.add(row.ID_B)
+    
+    # total_pooling_travelers = len(
+    #     unique_travelers
+    # )
+
     # COUNT UNIQUE TRAVELERS
+
     unique_travelers = set()
     
     for row in pooling_matches:
     
-        unique_travelers.add(row.ID_A)
-        unique_travelers.add(row.ID_B)
+        unique_travelers.add(row[0])  # ID_A
+        unique_travelers.add(row[3])  # ID_B
     
     total_pooling_travelers = len(
         unique_travelers
