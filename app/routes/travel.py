@@ -62,6 +62,8 @@ async def search_travel(
 
         airport_code=airport_code,
 
+        travel_date=payload.get("travel_date"),
+
         route=route
     )
 
@@ -83,7 +85,7 @@ async def search_travel(
     # FINAL RESPONSE
     # -----------------------------
 
-    return {
+        return {
 
         "privacy_check": sanitized_payload,
 
@@ -91,11 +93,27 @@ async def search_travel(
 
             "flight_number": flight["flight_number"],
 
+            "airline": flight["airline"],
+
             "route": flight["route"],
+
+            "departure_time": flight["departure_time"],
+
+            "arrival_time": flight["arrival_time"],
+
+            "duration_mins": flight["duration_mins"],
 
             "price": f"₹{flight['price_inr']}",
 
             "co2_impact": f"{flight['co2_kg']} kg",
+
+            "esg_rating": flight["esg_rating"],
+
+            "cabin_class": flight["cabin_class"],
+
+            "travel_date": payload.get(
+                "travel_date"
+            ),
 
             "esg_message": green_message(
                 flight["co2_kg"]
@@ -108,6 +126,12 @@ async def search_travel(
 
             "total_matches": len(
                 pooling_matches
+            ),
+
+            "airport_code": airport_code,
+
+            "travel_date": payload.get(
+                "travel_date"
             )
         }
     }
