@@ -170,7 +170,7 @@ left, right = st.columns([1, 1.4])
 # LEFT PANEL
 with left:
 
-    st.subheader("Traveler Request")
+    st.subeader("Traveler Request")
 
     name = st.text_input(
         "Traveler Name",
@@ -216,7 +216,7 @@ with left:
 # RIGHT PANEL
 with right:
 
-    st.subheader("Operational Intelligence")
+    st.subeader("Operational Intelligence")
 
     st.info(
         """
