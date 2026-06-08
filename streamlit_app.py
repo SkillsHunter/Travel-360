@@ -42,6 +42,9 @@ if "chat_stage" not in st.session_state:
 
 if "chat_booking" not in st.session_state:
     st.session_state.chat_booking = {}
+    
+if "chat_result" not in st.session_state:
+    st.session_state.chat_result = None
 # CUSTOM CSS
 st.markdown("""
 <style>
@@ -344,72 +347,24 @@ if user_prompt:
             if response.status_code == 200:
 
                 result = response.json()
+                
+                st.session_state.chat_result = result
+                
+                response_text = """
+                ✅ Travel request created successfully.
+                
+                Results have been generated below.
+                """
 
-                privacy = result.get(
-                    "privacy_check",
-                    {}
-                )
-
-                flight = result.get(
-                    "flight_result",
-                    {}
-                )
-
-                pooling = result.get(
-                    "pooling",
-                    {}
-                )
-
-                response_text = f"""
-🔒 Privacy Layer
-
-Traveler:
-{privacy.get('traveler_name','N/A')}
-
-Passport:
-{privacy.get('passport_number','N/A')}
-
-🌱 ESG Analysis
-
-Rating:
-{flight.get('esg_rating','N/A')}
-
-CO₂:
-{flight.get('co2_impact','N/A')}
-
-✈️ Recommended Flight
-
-{flight.get('airline','N/A')}
-{flight.get('flight_number','N/A')}
-
-Fare:
-{flight.get('price','N/A')}
-
-🚖 Pooling
-
-Matches:
-{pooling.get('total_matches',0)}
-
-Airport:
-{pooling.get('airport_code','N/A')}
-"""
-
+                st.session_state.chat_stage = "traveler_name"
+                st.session_state.chat_booking = {}
             else:
 
-                response_text = (
-                    "Backend returned an error."
-                )
+                response_text = "Backend returned an error."
 
         except Exception as e:
 
-            response_text = f"""
-        Error connecting to backend:
-        
-        {str(e)}
-        """
-
-        st.session_state.chat_stage = "traveler_name"
-        st.session_state.chat_booking = {}
+            response_text = f"Error: {str(e)}"
 
     # COMPLETE
 
@@ -428,231 +383,219 @@ Airport:
 
     st.rerun()
 # SEARCH RESPONSE
-if search:
+if search or st.session_state.chat_result:
 
-    payload = {
-        "traveler_name": name,
-        "passport_number": passport,
-        "member_id": member_id,
-        "company_id": company_id,
-        "route": route,
-        "travel_date": str(travel_date)
-    }
-
-    try:
-
+    if search:
+    
+        payload = {
+            "traveler_name": name,
+            "passport_number": passport,
+            "member_id": member_id,
+            "company_id": company_id,
+            "route": route,
+            "travel_date": str(travel_date)
+        }
+    
         response = requests.post(
             API_URL,
             json=payload
         )
-
-        if response.status_code != 200:
-
-            st.error(
-                f"Backend Error: {response.status_code}"
-            )
-
-            st.stop()
-
+    
         data = response.json()
-
-        st.divider()
-
-        # PRIVACY LAYER
-        st.header("🔒 Privacy Verification Layer")
-
-        privacy = data.get("privacy_check", {})
-
-        c1, c2, c3 = st.columns(3)
-
-        with c1:
-            st.metric(
-                "Masked User",
-                privacy.get("traveler_name", "N/A")
-            )
-
-        with c2:
-            st.metric(
-                "Masked Passport",
-                privacy.get("passport_number", "N/A")
-            )
-
-        with c3:
-            st.metric(
-                "Masked Member ID",
-                privacy.get("member_id", "N/A")
-            )
-
-        st.divider()
-
-        # FLIGHT RESULT
-        flight = data.get("flight_result", {})
-
-        left2, right2 = st.columns([1.2, 1])
-
-        with left2:
-
-            st.header("✈️ Flight Recommendation")
-
-            with st.container(border=True):
-
-                st.subheader(
-                    f"{flight.get('airline','N/A')} • {flight.get('flight_number','N/A')}"
-                )
-
-                st.write(
-                    f"**Route:** {flight['route']}"
-                )
-
-                st.write(
-                    f"**Date:** {flight['travel_date']}"
-                )
-
-                st.write(
-                    f"**Departure:** {flight['departure_time']}"
-                )
-
-                st.write(
-                    f"**Arrival:** {flight['arrival_time']}"
-                )
-
-                st.write(
-                    f"**Cabin:** {flight['cabin_class']}"
-                )
-
-                st.write(
-                    f"**ESG Rating:** {flight['esg_rating']}"
-                )
-
-                st.success(
-                    f"Fare: {flight['price']}"
-                )
-
-        with right2:
-
-            st.header("🌱 ESG Impact")
-            st.metric(
-                "ESG Rating",
-                flight.get("esg_rating", "N/A")
-            )
-
-            if "Low" in flight.get("esg_message", ""):
-
-                st.success(
-                    f"""
-                    CO₂ Impact: {flight['co2_impact']}
-                    
-                    {flight['esg_message']}
-                    """
-                )
-
-            else:
-
-                st.warning(
-                    f"""
-                    CO₂ Impact: {flight['co2_impact']}
-                    
-                    {flight['esg_message']}
-                    """
-                )
-
-        st.divider()
-
-        # LIVE SQL POOLING
-        st.header("🚖 Ride Pooling Opportunity")
-
-        pooling = data.get("pooling", {})
-
-        if pooling.get("match_found"):
-
-            st.success(
-                "🚖 Shared Transit Match Detected"
-            )
-
-            st.write(
-                """
-                Multi-tenant ride-sharing opportunity identified
-                using real-time airport arrival matching.
-                """
-            )
-
-            st.write(
-                f"• Pooling Opportunities: {pooling.get('total_matches')}"
-            )
-
-            st.write(
-                f"• Airport: {pooling.get('airport_code')}"
-            )
-
-            st.write(
-                f"• Travel Date: {pooling.get('travel_date')}"
-            )
-
-            st.write(
-                "• Estimated Savings: ₹950"
-            )
-
-            st.write(
-                "• Estimated CO₂ Reduction: 18%"
-            )
-
-            st.write(
-                "• Pooling Confidence Score: 92%"
-            )
-
-        else:
-
-            st.info(
-                "No live pooling opportunities detected."
-            )
-
-        st.divider()
-
-        # GOVERNANCE
+    
+    else:
+    
+        data = st.session_state.chat_result
+        st.session_state.chat_result = None
         
-        st.header("🛡 Governance Workflow")
-        
-        if flight.get("flight_number") == "AI550":
-        
-            st.error(
-                """
-                This itinerary exceeds the corporate ESG threshold
-                and normally requires mitigation before booking.
-                """
-            )
-        
-            bypass = st.checkbox(
-                "Authorize departmental carbon credit allocation for this trip."
-            )
-        
-            if bypass:
-        
-                st.success(
-                    """
-                    Carbon mitigation authorized.
-        
-                    Restriction cleared dynamically.
-        
-                    Proceeding to checkout.
-                    """
-                )
-        
-                st.balloons()
-        
-        else:
-        
-            st.success(
-                """
-                Flight complies with enterprise sustainability policy.
-        
-                No governance intervention required.
-                """
-            )
+    st.divider()
 
-    except Exception as e:
+    # PRIVACY LAYER
+    st.header("🔒 Privacy Verification Layer")
 
-        st.error(
-            "Backend connection failed. Please check Render deployment."
+    privacy = data.get("privacy_check", {})
+
+    c1, c2, c3 = st.columns(3)
+
+    with c1:
+        st.metric(
+            "Masked User",
+            privacy.get("traveler_name", "N/A")
         )
 
-        st.exception(e)
+    with c2:
+        st.metric(
+            "Masked Passport",
+            privacy.get("passport_number", "N/A")
+        )
+
+    with c3:
+        st.metric(
+            "Masked Member ID",
+            privacy.get("member_id", "N/A")
+        )
+
+    st.divider()
+
+    # FLIGHT RESULT
+    flight = data.get("flight_result", {})
+
+    left2, right2 = st.columns([1.2, 1])
+
+    with left2:
+
+        st.header("✈️ Flight Recommendation")
+
+        with st.container(border=True):
+
+            st.subheader(
+                f"{flight.get('airline','N/A')} • {flight.get('flight_number','N/A')}"
+            )
+
+            st.write(
+                f"**Route:** {flight.get('route','N/A')}"
+            )
+            st.write(
+                f"**Date:** {flight.get('travel_date','N/A')}"
+            )
+
+            st.write(
+                f"**Departure:** {flight.get('departure_time','N/A')}"
+            )
+
+            st.write(
+                f"**Arrival:** {flight.get('arrival_time','N/A')}"
+            )
+
+            st.write(
+                f"**Cabin:** {flight.get('cabin_class','N/A')}"
+            )
+
+            st.write(
+                f"**ESG Rating:** {flight.get('esg_rating','N/A')}"
+            )
+
+            st.success(
+                f"Fare: {flight.get('price','N/A')}"
+            )
+
+    with right2:
+
+        st.header("🌱 ESG Impact")
+        st.metric(
+            "ESG Rating",
+            flight.get("esg_rating", "N/A")
+        )
+
+        if "Low" in flight.get("esg_message", ""):
+
+            st.success(
+                f"""
+                CO₂ Impact: {flight.get('co2_impact', 'N/A')}
+                
+                {flight.get('esg_message', 'N/A')}
+                """
+            )
+
+        else:
+
+            st.warning(
+                f"""
+                CO₂ Impact: {flight.get('co2_impact', 'N/A')}
+                
+                {flight.get('esg_message', 'N/A')}
+                """
+            )
+
+    st.divider()
+
+    # LIVE SQL POOLING
+    st.header("🚖 Ride Pooling Opportunity")
+
+    pooling = data.get("pooling", {})
+
+    if pooling.get("match_found"):
+
+        st.success(
+            "🚖 Shared Transit Match Detected"
+        )
+
+        st.write(
+            """
+            Multi-tenant ride-sharing opportunity identified
+            using real-time airport arrival matching.
+            """
+        )
+
+        st.write(
+            f"• Pooling Opportunities: {pooling.get('total_matches')}"
+        )
+
+        st.write(
+            f"• Airport: {pooling.get('airport_code')}"
+        )
+
+        st.write(
+            f"• Travel Date: {pooling.get('travel_date')}"
+        )
+
+        st.write(
+            "• Estimated Savings: ₹950"
+        )
+
+        st.write(
+            "• Estimated CO₂ Reduction: 18%"
+        )
+
+        st.write(
+            "• Pooling Confidence Score: 92%"
+        )
+
+    else:
+
+        st.info(
+            "No live pooling opportunities detected."
+        )
+
+    st.divider()
+
+    # GOVERNANCE
+        
+    st.header("🛡 Governance Workflow")
+    
+    if flight.get("flight_number") == "AI550":
+    
+        st.error(
+            """
+            This itinerary exceeds the corporate ESG threshold
+            and normally requires mitigation before booking.
+            """
+        )
+    
+        bypass = st.checkbox(
+            "Authorize departmental carbon credit allocation for this trip."
+        )
+    
+        if bypass:
+    
+            st.success(
+                """
+                Carbon mitigation authorized.
+    
+                Restriction cleared dynamically.
+    
+                Proceeding to checkout.
+                """
+            )
+    
+            st.balloons()
+    
+    else:
+    
+        st.success(
+            """
+            Flight complies with enterprise sustainability policy.
+    
+            No governance intervention required.
+            """
+        )
