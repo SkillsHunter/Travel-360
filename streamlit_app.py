@@ -72,7 +72,7 @@ with k2:
     st.metric("CO₂ Saved", "18.4 Tons")
 
 with k3:
-    st.metric("Pooling Matches", "142")
+    st.metric("Pooling Opportunities", "142")
 
 with k4:
     st.metric("Active Trips", "328")
@@ -244,32 +244,32 @@ if search:
         # PRIVACY LAYER
         st.header("🔒 Privacy Verification Layer")
 
-        privacy = data["privacy_check"]
+        privacy = data.get("privacy_check", {})
 
         c1, c2, c3 = st.columns(3)
 
         with c1:
             st.metric(
                 "Masked User",
-                privacy["traveler_name"]
+                privacy.get("traveler_name", "N/A")
             )
 
         with c2:
             st.metric(
                 "Masked Passport",
-                privacy["passport_number"]
+                privacy.get("passport_number", "N/A")
             )
 
         with c3:
             st.metric(
                 "Masked Member ID",
-                privacy["member_id"]
+                privacy.get("member_id", "N/A")
             )
 
         st.divider()
 
         # FLIGHT RESULT
-        flight = data["flight_result"]
+        flight = data.get("flight_result", {})
 
         left2, right2 = st.columns([1.2, 1])
 
@@ -314,6 +314,10 @@ if search:
         with right2:
 
             st.header("🌱 ESG Impact")
+            st.metric(
+                "ESG Rating",
+                flight.get("esg_rating", "N/A")
+            )
 
             if "Low" in flight["esg_message"]:
 
@@ -388,32 +392,43 @@ if search:
         st.divider()
 
         # GOVERNANCE
+        
         st.header("🛡 Governance Workflow")
-
-        st.warning(
-            "Manual approval required for ESG threshold override."
-        )
-
-        reason = st.text_area(
-            "Manager Justification"
-        )
-
-        if st.button(
-            "Approve Exception",
-            use_container_width=True
-        ):
-
-            st.session_state.approval_status = True
-
-        if st.session_state.approval_status:
-
-            st.balloons()
-
+        
+        if flight.get("flight_number") == "AI550":
+        
+            st.error(
+                """
+                This itinerary exceeds the corporate ESG threshold
+                and normally requires mitigation before booking.
+                """
+            )
+        
+            bypass = st.checkbox(
+                "Authorize departmental carbon credit allocation for this trip."
+            )
+        
+            if bypass:
+        
+                st.success(
+                    """
+                    Carbon mitigation authorized.
+        
+                    Restriction cleared dynamically.
+        
+                    Proceeding to checkout.
+                    """
+                )
+        
+                st.balloons()
+        
+        else:
+        
             st.success(
                 """
-                Governance approval recorded successfully.
-
-                Audit trail updated.
+                Flight complies with enterprise sustainability policy.
+        
+                No governance intervention required.
                 """
             )
 
