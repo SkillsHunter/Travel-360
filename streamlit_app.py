@@ -17,7 +17,31 @@ st.set_page_config(
 # SESSION STATE
 if "approval_status" not in st.session_state:
     st.session_state.approval_status = False
+# CHAT AGENT STATE
 
+if "messages" not in st.session_state:
+
+    st.session_state.messages = [
+        {
+            "role": "assistant",
+            "content":
+            """
+Hello! I am your Travel360 Autonomous Agent.
+
+I can help you create a travel request.
+
+Let's begin.
+
+What is the traveler's name?
+            """
+        }
+    ]
+
+if "chat_stage" not in st.session_state:
+    st.session_state.chat_stage = "traveler_name"
+
+if "chat_booking" not in st.session_state:
+    st.session_state.chat_booking = {}
 # CUSTOM CSS
 st.markdown("""
 <style>
@@ -213,31 +237,7 @@ st.divider()
 
 st.subheader("🤖 Travel360 AI Assistant")
 
-if "messages" not in st.session_state:
-
-    st.session_state.messages = [
-        {
-            "role": "assistant",
-            "content":
-            """
-Hello! I am the Travel360 Autonomous Agent.
-
-I can help with:
-
-• Flight recommendations
-• ESG compliance
-• Ride pooling
-• Travel governance
-• Privacy protection
-
-Try asking:
-'Book me a flight to London'
-or
-'Explain ride pooling'
-            """
-        }
-    ]
-
+# SEARCH RESPONSE
 chat_container = st.container(height=350)
 
 with chat_container:
@@ -249,7 +249,7 @@ with chat_container:
             st.write(message["content"])
 
 user_prompt = st.chat_input(
-    "Ask Travel360..."
+    "Chat with Travel360..."
 )
 
 if user_prompt:
@@ -261,45 +261,161 @@ if user_prompt:
         }
     )
 
-    prompt = user_prompt.lower()
+    booking = st.session_state.chat_booking
 
-    if "privacy" in prompt:
+    # STAGE 1
 
-        response_text = """
-🔒 Travel360 uses a Zero-Trust Privacy Interface.
+    if st.session_state.chat_stage == "traveler_name":
 
-Traveler names, passport numbers and loyalty identifiers are tokenized before downstream processing.
+        booking["traveler_name"] = user_prompt
+
+        st.session_state.chat_stage = "passport"
+
+        response_text = (
+            "Please enter your passport number."
+        )
+
+    # STAGE 2
+
+    elif st.session_state.chat_stage == "passport":
+
+        booking["passport_number"] = user_prompt
+
+        st.session_state.chat_stage = "member_id"
+
+        response_text = (
+            "Please enter your member ID."
+        )
+
+    # STAGE 3
+
+    elif st.session_state.chat_stage == "member_id":
+
+        booking["member_id"] = user_prompt
+
+        st.session_state.chat_stage = "company"
+
+        response_text = (
+            "Please enter company ID (COMPANY_A/B/C/D)."
+        )
+
+    # STAGE 4
+
+    elif st.session_state.chat_stage == "company":
+
+        booking["company_id"] = user_prompt
+
+        st.session_state.chat_stage = "route"
+
+        response_text = (
+            "Please enter route (Example: DEL-BOM)."
+        )
+
+    # STAGE 5
+
+    elif st.session_state.chat_stage == "route":
+
+        booking["route"] = user_prompt
+
+        st.session_state.chat_stage = "travel_date"
+
+        response_text = (
+            "Please enter travel date (YYYY-MM-DD)."
+        )
+
+    # STAGE 6
+
+    elif st.session_state.chat_stage == "travel_date":
+
+        booking["travel_date"] = user_prompt
+
+        response_text = (
+            "Searching Travel360..."
+        )
+
+        try:
+
+            response = requests.post(
+                API_URL,
+                json=booking,
+                timeout=30
+            )
+
+            if response.status_code == 200:
+
+                result = response.json()
+
+                privacy = result.get(
+                    "privacy_check",
+                    {}
+                )
+
+                flight = result.get(
+                    "flight_result",
+                    {}
+                )
+
+                pooling = result.get(
+                    "pooling",
+                    {}
+                )
+
+                response_text = f"""
+🔒 Privacy Layer
+
+Traveler:
+{privacy.get('traveler_name','N/A')}
+
+Passport:
+{privacy.get('passport_number','N/A')}
+
+🌱 ESG Analysis
+
+Rating:
+{flight.get('esg_rating','N/A')}
+
+CO₂:
+{flight.get('co2_impact','N/A')}
+
+✈️ Recommended Flight
+
+{flight.get('airline','N/A')}
+{flight.get('flight_number','N/A')}
+
+Fare:
+{flight.get('price','N/A')}
+
+🚖 Pooling
+
+Matches:
+{pooling.get('total_matches',0)}
+
+Airport:
+{pooling.get('airport_code','N/A')}
 """
 
-    elif "pool" in prompt:
+            else:
 
-        response_text = """
-🚖 Travel360 Ride Pooling Engine identifies overlapping airport arrivals and recommends shared transit opportunities.
-"""
+                response_text = (
+                    "Backend returned an error."
+                )
 
-    elif "esg" in prompt:
+        except Exception:
 
-        response_text = """
-🌱 Travel360 ESG Engine calculates deterministic carbon impact scores and flags itineraries exceeding sustainability thresholds.
-"""
+            response_text = (
+                "Unable to connect to Travel360 services."
+            )
 
-    elif "governance" in prompt:
+        st.session_state.chat_stage = "traveler_name"
+        st.session_state.chat_booking = {}
 
-        response_text = """
-🛡 Travel360 Governance Workflow supports sustainability policy enforcement and carbon-credit exception handling.
-"""
+    # COMPLETE
 
-    else:
+    elif st.session_state.chat_stage == "complete":
 
-        response_text = """
-I can help explain:
-
-• Privacy Protection
-• ESG Compliance
-• Ride Pooling
-• Governance Workflows
-• Travel Policies
-"""
+        response_text = (
+            "Booking flow completed. Refresh page to start another request."
+        )
 
     st.session_state.messages.append(
         {
@@ -309,8 +425,6 @@ I can help explain:
     )
 
     st.rerun()
-
-# SEARCH RESPONSE
 # SEARCH RESPONSE
 if search:
 
