@@ -400,11 +400,13 @@ Airport:
                     "Backend returned an error."
                 )
 
-        except Exception:
+        except Exception as e:
 
-            response_text = (
-                "Unable to connect to Travel360 services."
-            )
+            response_text = f"""
+        Error connecting to backend:
+        
+        {str(e)}
+        """
 
         st.session_state.chat_stage = "traveler_name"
         st.session_state.chat_booking = {}
