@@ -341,7 +341,7 @@ if user_prompt:
             response = requests.post(
                 API_URL,
                 json=booking,
-                timeout=30
+                timeout=60
             )
 
             if response.status_code == 200:
