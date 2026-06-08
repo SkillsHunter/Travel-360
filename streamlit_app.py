@@ -209,7 +209,108 @@ with right:
         and tokenized before downstream processing.
         """
     )
+st.divider()
 
+st.subheader("🤖 Travel360 AI Assistant")
+
+if "messages" not in st.session_state:
+
+    st.session_state.messages = [
+        {
+            "role": "assistant",
+            "content":
+            """
+Hello! I am the Travel360 Autonomous Agent.
+
+I can help with:
+
+• Flight recommendations
+• ESG compliance
+• Ride pooling
+• Travel governance
+• Privacy protection
+
+Try asking:
+'Book me a flight to London'
+or
+'Explain ride pooling'
+            """
+        }
+    ]
+
+chat_container = st.container(height=350)
+
+with chat_container:
+
+    for message in st.session_state.messages:
+
+        with st.chat_message(message["role"]):
+
+            st.write(message["content"])
+
+user_prompt = st.chat_input(
+    "Ask Travel360..."
+)
+
+if user_prompt:
+
+    st.session_state.messages.append(
+        {
+            "role": "user",
+            "content": user_prompt
+        }
+    )
+
+    prompt = user_prompt.lower()
+
+    if "privacy" in prompt:
+
+        response_text = """
+🔒 Travel360 uses a Zero-Trust Privacy Interface.
+
+Traveler names, passport numbers and loyalty identifiers are tokenized before downstream processing.
+"""
+
+    elif "pool" in prompt:
+
+        response_text = """
+🚖 Travel360 Ride Pooling Engine identifies overlapping airport arrivals and recommends shared transit opportunities.
+"""
+
+    elif "esg" in prompt:
+
+        response_text = """
+🌱 Travel360 ESG Engine calculates deterministic carbon impact scores and flags itineraries exceeding sustainability thresholds.
+"""
+
+    elif "governance" in prompt:
+
+        response_text = """
+🛡 Travel360 Governance Workflow supports sustainability policy enforcement and carbon-credit exception handling.
+"""
+
+    else:
+
+        response_text = """
+I can help explain:
+
+• Privacy Protection
+• ESG Compliance
+• Ride Pooling
+• Governance Workflows
+• Travel Policies
+"""
+
+    st.session_state.messages.append(
+        {
+            "role": "assistant",
+            "content": response_text
+        }
+    )
+
+    st.rerun()
+
+# SEARCH RESPONSE
 # SEARCH RESPONSE
 if search:
 
@@ -280,7 +381,7 @@ if search:
             with st.container(border=True):
 
                 st.subheader(
-                    f"{flight['airline']} • {flight['flight_number']}"
+                    f"{flight.get('airline','N/A')} • {flight.get('flight_number','N/A')}"
                 )
 
                 st.write(
@@ -319,7 +420,7 @@ if search:
                 flight.get("esg_rating", "N/A")
             )
 
-            if "Low" in flight["esg_message"]:
+            if "Low" in flight.get("esg_message", ""):
 
                 st.success(
                     f"""
