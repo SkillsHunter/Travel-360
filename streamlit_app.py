@@ -163,81 +163,6 @@ st.dataframe(
 )
 
 st.divider()
-
-# MAIN LAYOUT
-left, right = st.columns([1, 1.4])
-
-# LEFT PANEL
-with left:
-
-    st.subheader("Traveler Request")
-
-    name = st.text_input(
-        "Traveler Name",
-        "Arjun Mehta"
-    )
-
-    passport = st.text_input(
-        "Passport Number",
-        "K1234567"
-    )
-
-    member_id = st.text_input(
-        "Member ID",
-        "MEM8821"
-    )
-
-    travel_date = st.date_input(
-        "Travel Date"
-    )
-
-    company_id = st.selectbox(
-        "Company",
-        [
-            "COMPANY_A",
-            "COMPANY_B",
-            "COMPANY_C",
-            "COMPANY_D"
-        ]
-    )
-
-    available_routes = FLIGHTS_DF["route"].unique()
-
-    route = st.selectbox(
-        "Travel Route",
-        available_routes
-    )
-
-    search = st.button(
-        "Execute Travel Search",
-        use_container_width=True
-    )
-
-# RIGHT PANEL
-with right:
-
-    st.subheader("Operational Intelligence")
-
-    st.info(
-        """
-        🚖 Smart Pooling Engine
-        
-        Multi-tenant ride-sharing optimization detects
-        overlapping airport arrivals and reduces
-        enterprise transit emissions automatically.
-        """
-    )
-
-    st.warning(
-        """
-        🔒 Zero-Trust Privacy Firewall
-        
-        All sensitive traveler data is recursively sanitized
-        and tokenized before downstream processing.
-        """
-    )
-st.divider()
-
 st.subheader("🤖 Travel360 AI Assistant")
 
 # SEARCH RESPONSE
@@ -382,6 +307,81 @@ if user_prompt:
     )
 
     st.rerun()
+
+# MAIN LAYOUT
+left, right = st.columns([1, 1.4])
+
+# LEFT PANEL
+with left:
+
+    st.subheader("Traveler Request")
+
+    name = st.text_input(
+        "Traveler Name",
+        "Arjun Mehta"
+    )
+
+    passport = st.text_input(
+        "Passport Number",
+        "K1234567"
+    )
+
+    member_id = st.text_input(
+        "Member ID",
+        "MEM8821"
+    )
+
+    travel_date = st.date_input(
+        "Travel Date"
+    )
+
+    company_id = st.selectbox(
+        "Company",
+        [
+            "COMPANY_A",
+            "COMPANY_B",
+            "COMPANY_C",
+            "COMPANY_D"
+        ]
+    )
+
+    available_routes = FLIGHTS_DF["route"].unique()
+
+    route = st.selectbox(
+        "Travel Route",
+        available_routes
+    )
+
+    search = st.button(
+        "Execute Travel Search",
+        use_container_width=True
+    )
+
+# RIGHT PANEL
+with right:
+
+    st.subheader("Operational Intelligence")
+
+    st.info(
+        """
+        🚖 Smart Pooling Engine
+        
+        Multi-tenant ride-sharing optimization detects
+        overlapping airport arrivals and reduces
+        enterprise transit emissions automatically.
+        """
+    )
+
+    st.warning(
+        """
+        🔒 Zero-Trust Privacy Firewall
+        
+        All sensitive traveler data is recursively sanitized
+        and tokenized before downstream processing.
+        """
+    )
+st.divider()
+
 # SEARCH RESPONSE
 if search or st.session_state.chat_result:
 
