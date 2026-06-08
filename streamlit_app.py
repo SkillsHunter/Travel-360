@@ -216,7 +216,7 @@ with left:
 # RIGHT PANEL
 with right:
 
-    st.subeader("Operational Intelligence")
+    st.subheader("Operational Intelligence")
 
     st.info(
         """
