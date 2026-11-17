@@ -1,4 +1,10 @@
-from fastapi import APIRouter, Depends
+import os
+import secrets
+from datetime import date
+from typing import Optional
+
+from fastapi import APIRouter, Depends, Header, HTTPException
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
 
 from app.models.travel_request import TravelRequest
@@ -16,11 +22,51 @@ from app.services.esg_service import (
 router = APIRouter()
 
 
-@router.post("/search")
+# Optional shared key. When TRAVEL360_API_KEY is set on the server,
+# every /search call must send it in the X-API-Key header.
+API_KEY = os.getenv("TRAVEL360_API_KEY")
+
+
+def require_api_key(x_api_key: Optional[str] = Header(default=None)):
+
+    if API_KEY and not (
+        x_api_key and secrets.compare_digest(x_api_key, API_KEY)
+    ):
+        raise HTTPException(status_code=401, detail="Invalid API key")
+
+
+class SearchRequest(BaseModel):
+
+    traveler_name: Optional[str] = Field(default=None, max_length=100)
+
+    passport_number: Optional[str] = Field(default=None, max_length=20)
+
+    member_id: Optional[str] = Field(default=None, max_length=40)
+
+    company_id: str = Field(default="COMPANY_A", max_length=40)
+
+    # Format: three-letter origin and destination codes, e.g. DEL-BLR
+    route: str = Field(pattern=r"^[A-Z]{3}-[A-Z]{3}$")
+
+    travel_date: date
+
+    @field_validator("route", mode="before")
+    @classmethod
+    def normalise_route(cls, value):
+
+        if isinstance(value, str):
+            return value.strip().upper()
+
+        return value
+
+
+@router.post("/search", dependencies=[Depends(require_api_key)])
 async def search_travel(
-    payload: dict,
+    request: SearchRequest,
     db: Session = Depends(get_db)
 ):
+
+    payload = request.model_dump(mode="json", exclude_none=True)
 
     # -----------------------------
     # PRIVACY SANITIZATION
@@ -34,7 +80,7 @@ async def search_travel(
     # FLIGHT LOOKUP
     # -----------------------------
 
-    route = payload.get("route")
+    route = payload["route"]
 
     flight = get_flight_data(route)
 
@@ -56,7 +102,8 @@ async def search_travel(
             "COMPANY_A"
         ),
 
-        traveler_name=payload.get(
+        # Store the token, never the raw name
+        traveler_name=sanitized_payload.get(
             "traveler_name"
         ),
 

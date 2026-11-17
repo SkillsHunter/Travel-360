@@ -1,8 +1,24 @@
+import os
+
 import streamlit as st
 import requests
 import pandas as pd
 
 API_URL = "https://travel-360.onrender.com/search"
+
+
+def _api_key():
+
+    # Read from Streamlit secrets first, then the environment.
+    try:
+        key = st.secrets.get("TRAVEL360_API_KEY")
+    except Exception:
+        key = None
+
+    return key or os.getenv("TRAVEL360_API_KEY")
+
+
+API_HEADERS = {"X-API-Key": _api_key()} if _api_key() else {}
 
 # LOAD FLIGHTS DATA
 FLIGHTS_DF = pd.read_csv("data/flights.csv")
@@ -266,6 +282,7 @@ if user_prompt:
             response = requests.post(
                 API_URL,
                 json=booking,
+                headers=API_HEADERS,
                 timeout=60
             )
 
@@ -287,9 +304,11 @@ if user_prompt:
 
                 response_text = "Backend returned an error."
 
-        except Exception as e:
+        except requests.RequestException:
 
-            response_text = f"Error: {str(e)}"
+            response_text = (
+                "Could not reach the Travel360 service. Please try again."
+            )
 
     # COMPLETE
 
@@ -396,12 +415,27 @@ if search or st.session_state.chat_result:
             "travel_date": str(travel_date)
         }
     
-        response = requests.post(
-            API_URL,
-            json=payload
-        )
-    
-        data = response.json()
+        try:
+
+            response = requests.post(
+                API_URL,
+                json=payload,
+                headers=API_HEADERS,
+                timeout=60
+            )
+
+            response.raise_for_status()
+
+            data = response.json()
+
+        except requests.RequestException:
+
+            st.error(
+                "The Travel360 service returned an error. "
+                "Check the route (e.g. DEL-BLR) and date, then try again."
+            )
+
+            st.stop()
     
     else:
     
