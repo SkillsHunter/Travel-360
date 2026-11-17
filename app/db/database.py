@@ -2,7 +2,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 import os
 
-#DATABASE_URL = os.getenv("postgresql://neondb_owner:npg_VbgA4ZDzu7or@ep-young-morning-aoevy1fo-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
+# Set DATABASE_URL in the host's secret settings (Render) or a local,
+# git-ignored .env file. Never commit connection strings.
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if not DATABASE_URL:
